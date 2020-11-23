@@ -23,7 +23,70 @@ const Spotify = {
             window.location = accessURL;
         }
 
-    }   
+    },
+    
+    search(term){
+
+        const spotifyAccessToken = Spotify.getAccessToken()
+        console.log(accessToken)
+
+        return fetch(`https://api.spotify.com/v1/search?type=track&q=${term}`, {
+            headers: {Authorization: `Bearer ${spotifyAccessToken}`}
+          })
+          .then( res => res.json())
+          .then(response => {
+
+              if(!response.tracks){
+                  return []
+              }else{
+                  
+                  return response.tracks.items.map(track => (
+                       {
+                          id: track.id,
+                          name: track.name,
+                          artist: track.artists[0].name,
+                          album: track.album.name,
+                          uri: track.uri
+                      }
+                  ))
+              }
+          })
+    },
+
+    savePlaylist(name, uris){
+        if(!name || !uris.length){
+            return
+        }else{
+            const spotifyAccessToken = Spotify.getAccessToken();
+            const headers = {Authorization: `Bearer ${spotifyAccessToken}`}
+            let userID;
+
+            return fetch('https://api.spotify.com/v1/me', {
+                headers: headers
+            })
+            .then(res => res.json())
+            .then(res => {
+                userID = res.id
+
+                return fetch(`https://api.spotify.com/v1/users/${userID}/playlists`, {
+                    headers: headers,
+                    method: 'POST',
+                    body: JSON.stringify({name: name})
+                })
+                .then(res => res.json())
+                .then(response => {
+                    const playlistID = response.id;
+
+                    return fetch(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
+                        headers: headers, 
+                        method: 'POST', 
+                        body: JSON.stringify({uris: uris})
+                    })
+                })
+            });
+            
+        }
+    }
 };
 
 
