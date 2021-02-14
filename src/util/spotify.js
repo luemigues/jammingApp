@@ -1,6 +1,6 @@
 import { clientID } from './Ids.js';
 let accessToken;
-const redirectURI = "http://localhost:3000/";
+const redirectURI = "https://luemigues-jamming.netlify.app/";
 
 const Spotify = {
 
